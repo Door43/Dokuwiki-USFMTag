@@ -1,6 +1,7 @@
 <?php
 /**
  * Copyright (c) 2011 Rusmin Soetjipto
+ * Ported to Dokuwiki by Yvonne Lu
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +22,10 @@
  * THE SOFTWARE.
  */
 
+/* yil porting notes:
+ * parser needs to do:
+ * recursiveTagParse
+ */
 class UsfmBodyOrFooter {
   private $html_text = '';
   private $is_verse_popups_extension_available = False;
@@ -30,22 +35,17 @@ class UsfmBodyOrFooter {
   const BIBLE_VERSE_REFERENCE_PATTERN_2 =
     "([\\;\\,]\\s?\\d+([\\:\\.]\d+)?([\\-\\~]\\d+)?)*/";
   
-  function __construct($parser) {
-    global $wgHooks;
-  	if ( (False !== array_search('verseCode',
-  	                             $wgHooks['ParserFirstCallInit'])) ||
-  	     (False !== array_search('versesCode',
-  	                             $wgHooks['ParserFirstCallInit'])) )
-  	{
-  	  $this->is_verse_popups_extension_available = True;
-  	}
-  	$this->parser = $parser;
+  //function __construct($parser) {
+  //yil no parser for now, also,no verse popup extension (don't know what it is)
+  function __construct() {
+    $this->is_verse_popups_extension_available = False;  
+    
   }
   
-  function printHtmlText($html_text) {
+   function printHtmlText($html_text) {
     $final_text = '';
     if ($this->is_verse_popups_extension_available) {
-      global $wgOut;
+      //global $wgOut;
       while (preg_match(self::BIBLE_VERSE_REFERENCE_PATTERN_1.
                         self::BIBLE_VERSE_REFERENCE_PATTERN_2,
                         $html_text, $matches, PREG_OFFSET_CAPTURE))   
@@ -60,7 +60,7 @@ class UsfmBodyOrFooter {
     $final_text = str_replace("~", "&nbsp;", $final_text.$html_text);
     $this->html_text .= $final_text;
   }
-
+  
   function getAndClearHtmlText() {
     $result = $this->html_text;
     $this->html_text = '';
@@ -69,131 +69,138 @@ class UsfmBodyOrFooter {
 }
 
 class UsfmText {
-  private $book_name = '';
-  private $is_book_started = False;
-  private $latest_chapter_number = 0;
-  
-  private $chapter_label = '';
-  private $chapter_number = '';
-  private $alternate_chapter_number = '';
-  private $published_chapter_number = '';
-  private $is_current_chapter_using_label = False;
-  
-  private $verse_number = '';
-  private $alternate_verse_number = '';
-  
-  private $table_data = array ();
-  private $is_in_table_mode = False;
-  const IS_HEADER = 0;
-  const IS_RIGHT_ALIGNED = 1;
-  const CONTENT_TEXT = 2;
-  
-  private $paragraph_state;
-  private $body;
-  private $footer;
-  private $is_in_footer_mode = False;
-  
-  private $anchor_count = -1;
-  
-  private $flush_paragraph_settings = array (
+    private $book_name = '';
+    private $is_book_started = False;
+    private $latest_chapter_number = 0;
+
+    private $chapter_label = '';
+    private $chapter_number = '';
+    private $alternate_chapter_number = '';
+    private $published_chapter_number = '';
+    private $is_current_chapter_using_label = False;
+
+    private $verse_number = '';
+    private $alternate_verse_number = '';
+
+    private $table_data = array ();
+    private $is_in_table_mode = False;
+    const IS_HEADER = 0;
+    const IS_RIGHT_ALIGNED = 1;
+    const CONTENT_TEXT = 2;
+
+    private $paragraph_state;
+    private $body;
+    private $footer;
+    private $is_in_footer_mode = False;
+
+    private $anchor_count = -1;
+    
+    private $flush_paragraph_settings = array (
     "default" => "usfm-flush"
-  );
-  private $drop_cap_numeral_settings = array (
-    "usfm-indent" => "usfm-c-indent",
-    "default"     => "usfm-c"
-  );
-  private $pre_chapter_paragraph_classes =
-    array("usfm-desc");
-    
-  const INDENT_LEVEL = 0;
-  const IS_ITALIC = 1;
-  const ALIGNMENT = 2;
-  const PARAGRAPH_CLASS = 3;
-  private $default_paragraph = 
-    array (0, False, 'justify', 'usfm-indent'); 
-    
-  function __construct($parser) {
-  	$this->paragraph_state = new UsfmParagraphState();
-    $this->body = new UsfmBodyOrFooter($parser);
-    $this->footer = new UsfmBodyOrFooter($parser);
-  }
+    );
+    private $drop_cap_numeral_settings = array (
+      "usfm-indent" => "usfm-c-indent",
+      "default"     => "usfm-c"
+    );
+    private $pre_chapter_paragraph_classes =
+      array("usfm-desc");
   
-  private function getSetting($key, $settings) {
-  	if (array_key_exists($key, $settings)) {
-  		return $settings[$key];
-  	} else {
-  		return $settings["default"];
-  	}
-  }
+    const INDENT_LEVEL = 0;
+    const IS_ITALIC = 1;
+    const ALIGNMENT = 2;
+    const PARAGRAPH_CLASS = 3;
+    private $default_paragraph = 
+        array (0, False, 'justify', 'usfm-indent'); 
+
+    //yil no parser yet
+    //118
+    function __construct() {
+        
+        $this->paragraph_state = new UsfmParagraphState();
+        $this->body = new UsfmBodyOrFooter(); //yil no parser for now
+        $this->footer = new UsfmBodyOrFooter(); //yil no parser for now
+    }
+    
+    //124
+    private function getSetting($key, $settings) {
+            if (array_key_exists($key, $settings)) {
+                    return $settings[$key];
+            } else {
+                    return $settings["default"];
+            }
+      }
+
+    //132  
+    function setChapterLabel($chapter_label) {
+        if ( ($this->chapter_number <> '') ||
+             ($this->alternate_chapter_number <> '') ||
+             ($this->published_chapter_number <> '') ||
+             ($this->is_book_started) )
+        {
+          $this->chapter_label = $chapter_label;
+          $this->is_current_chapter_using_label = True;
+        } else {
+          $this->setBookName($chapter_label);
+        }
+      }
+   //145
+   function setChapterNumber($chapter_number) {
+        $this->chapter_number = $chapter_number;
+        $this->latest_chapter_number = $chapter_number;
+      }
       
-  function setChapterLabel($chapter_label) {
-    if ( ($this->chapter_number <> '') ||
-         ($this->alternate_chapter_number <> '') ||
-         ($this->published_chapter_number <> '') ||
-         ($this->is_book_started) )
-    {
-      $this->chapter_label = $chapter_label;
-      $this->is_current_chapter_using_label = True;
-    } else {
-      $this->setBookName($chapter_label);
+   //150 to be ported
+   //function setAlternateChapterNumber
+   
+   //154 to be ported
+   //function setPublishedChapterNumber
+   
+   //158
+    private function getFullChapterNumber() {
+        if ($this->chapter_number && $this->alternate_chapter_number) {
+          return $this->chapter_number."(".
+                 $this->alternate_chapter_number.")";
+        } elseif ($this->chapter_number) {
+          return $this->chapter_number;
+        } else {
+          return $this->alternate_chapter_number;
+        }
     }
-  }
-  
-  function setChapterNumber($chapter_number) {
-    $this->chapter_number = $chapter_number;
-    $this->latest_chapter_number = $chapter_number;
-  }
-  
-  function setAlternateChapterNumber($alternate_chapter_number) {
-    $this->alternate_chapter_number = $alternate_chapter_number;
-  }
-  
-  function setPublishedChapterNumber($published_chapter_number) {
-    $this->published_chapter_number = $published_chapter_number;
-  }
-  
-  private function getFullChapterNumber() {
-    if ($this->chapter_number && $this->alternate_chapter_number) {
-      return $this->chapter_number."(".
-             $this->alternate_chapter_number.")";
-    } elseif ($this->chapter_number) {
-      return $this->chapter_number;
-    } else {
-      return $this->alternate_chapter_number;
-    }
-  }
-  
-  private function isDropCapNumeralPending() {
+    
+   //169
+   private function isDropCapNumeralPending() {
   	return ($thipublished_chapter_number <> '') ||
   	       ($this->getFullChapterNumber() <> '');
-  }
-  
-  function flushPendingDropCapNumeral($is_no_break) {
-    $final_chapter_number = $this->published_chapter_number ?
-                            $this->published_chapter_number :
-                            $this->getFullChapterNumber(); 
-    if ($final_chapter_number) {
-      $this->chapter_number = '';
-      $this->alternate_chapter_number = '';
-      $this->published_chapter_number = '';
-      if ( $is_no_break || ( (!$this->book_name) && 
-           (!$this->is_current_chapter_using_label) ) )
-      {
-        $drop_cap_numeral_class = 
-          $this->getSetting($this->paragraph_state->getParagraphClass(),
-                            $this->drop_cap_numeral_settings);
-        $this->body
-             ->printHtmlText("<span class='".$drop_cap_numeral_class."'>".
-                            "<big class='usfm-c'><big class='usfm-c'>".
-                            "<big class='usfm-c'><big class='usfm-c'>".
-                            $final_chapter_number.
-                            "</big></big></big></big></span>");
+   }
+   
+   //174
+    function flushPendingDropCapNumeral($is_no_break) {
+        $final_chapter_number = $this->published_chapter_number ?
+                                $this->published_chapter_number :
+                                $this->getFullChapterNumber(); 
+        if ($final_chapter_number) {
+          $this->chapter_number = '';
+          $this->alternate_chapter_number = '';
+          $this->published_chapter_number = '';
+          if ( $is_no_break || ( (!$this->book_name) && 
+               (!$this->is_current_chapter_using_label) ) )
+          {
+            $drop_cap_numeral_class = 
+              $this->getSetting($this->paragraph_state->getParagraphClass(),
+                                $this->drop_cap_numeral_settings);
+            $this->body
+                 ->printHtmlText("<span class='".$drop_cap_numeral_class."'>".
+                                "<big class='usfm-c'><big class='usfm-c'>".
+                                "<big class='usfm-c'><big class='usfm-c'>".
+                                $final_chapter_number.
+                                "</big></big></big></big></span>");
+          }
+        }
+        $this->is_current_chapter_using_label = False;
       }
-    }
-    $this->is_current_chapter_using_label = False;
-  }
-    
-  private function flushPendingChapterLabel() {    
+      
+   //199
+    private function flushPendingChapterLabel() {    
     if ($this->chapter_label) {
       $this->body
            ->printHtmlText($this->paragraph_state
@@ -207,9 +214,10 @@ class UsfmText {
                                       ->printTitle(False, 3, False,
                                                    $label_text));
     }
-  }    
-
-  function printTitle($level, $is_italic, $content) {
+  }
+  
+  //221
+   function printTitle($level, $is_italic, $content) {
     $this->body->printHtmlText($this->paragraph_state
                                     ->closeParagraph());
     $this->flushPendingChapterLabel();
@@ -218,169 +226,183 @@ class UsfmText {
                                                  $is_italic,
                                                  $content));
   }
- 
-  function switchParagraph($new_indent_level, $is_italic, $alignment, 
+      
+   //226
+   function switchParagraph($new_indent_level, $is_italic, $alignment, 
                            $paragraph_class)
-  {    
-    $this->body->printHtmlText($this->paragraph_state
-                                    ->closeParagraph());
-    $this->flushPendingChapterLabel();
-    $is_pre_chapter_paragraph = 
-      (False !== array_search($paragraph_class, 
-                              $this->pre_chapter_paragraph_classes));
+    {    
+      $this->body->printHtmlText($this->paragraph_state
+                                      ->closeParagraph());
+      $this->flushPendingChapterLabel();
+      $is_pre_chapter_paragraph = 
+        (False !== array_search($paragraph_class, 
+                                $this->pre_chapter_paragraph_classes));
 
-    wfDebug("switchParagraph: ".($is_pre_chapter_paragraph ? "T" : "F").
-            " ".$paragraph_class."\n");
-    if ( (!$is_pre_chapter_paragraph) &&
-         $this->isDropCapNumeralPending() )
-    {
-      $paragraph_class = 
-        $this->getSetting($this->paragraph_state->getParagraphClass(),
-                          $this->flush_paragraph_settings);         	
-    }
-    $this->body->printHtmlText($this->paragraph_state
-                                    ->switchParagraph($new_indent_level,
-                                                      $is_italic,
-                                                      $alignment,
-                                                      $paragraph_class));           
-    if (!$is_pre_chapter_paragraph) {
-      $this->flushPendingDropCapNumeral(False);
-    }
-    
-  }
-
-  function setVerseNumber($verse_number) {
-    $this->verse_number = $verse_number;
-  }
-
-  function setAlternateVerseNumber($alternate_verse_number) {
-    $this->alternate_verse_number = $alternate_verse_number;
-  }
-  
-  private function flushPendingVerseInfo() {
-    if ( ($this->alternate_verse_number <> '') || 
-         ($this->verse_number <> '') )
-    {
-    	if (!$this->paragraph_state->isOpen()) {
-    		$this->switchParagraph($this->default_paragraph[self::INDENT_LEVEL],
-    		                       $this->default_paragraph[self::IS_ITALIC],
-    		                       $this->default_paragraph[self::ALIGNMENT],
-    		                       $this->default_paragraph[self::PARAGRAPH_CLASS]);
-    	}
-      $anchor_verse = $this->verse_number ? $this->verse_number :
-                                            $this->alternate_verse_number;
-      if ( ($this->alternate_verse_number <> '') &&
-           ($this->verse_number <> '') )
+      /* yil commented out debug statement
+      wfDebug("switchParagraph: ".($is_pre_chapter_paragraph ? "T" : "F").
+              " ".$paragraph_class."\n");*/
+      if ( (!$is_pre_chapter_paragraph) &&
+           $this->isDropCapNumeralPending() )
       {
-        $verse_label = $this->verse_number." (".$this->alternate_verse_number.")";     	
-      } else {
-      	$verse_label = $anchor_verse;
+        $paragraph_class = 
+          $this->getSetting($this->paragraph_state->getParagraphClass(),
+                            $this->flush_paragraph_settings);         	
       }
-      $this->body->printHtmlText(" <span class='usfm-v'><b class='usfm'>".
-                                 "<a name='".$this->latest_chapter_number."_".
-                                 $anchor_verse."'></a>".$verse_label.
-                                 "</b></span>");
-      $this->verse_number = '';
-      $this->alternate_verse_number = '';
-    }
-  }
-  
-  function insertTableColumn($is_header, $is_right_aligned, $text) {
-    wfDebug("inserting table column: ".$text."\n");
-  	$this->table_data[] = array ($is_header, $is_right_aligned, 
-                                 $text);
-  }
-  
-  function flushPendingTableColumns() {
-    if (!$this->is_in_table_mode) {
-      $this->is_in_table_mode = True;
-      $this->body->printHtmlText("\n<table class='usfm'>");
-    }
-    if (count($this->table_data) > 0) {
-      $this->body->printHtmlText("\n<tr class='usfm'>");
-    	foreach ($this->table_data as $data) {
-        $html_text = 
-          "\n<td class='usfm-".($data[self::IS_HEADER] ? 'th' : 'tc').
-          ($data[self::IS_RIGHT_ALIGNED] ? "' align='right" : "").
-          "'>".$data[self::CONTENT_TEXT]."</td>\n";
-        $this->body->printHtmlText($html_text);
+      $this->body->printHtmlText($this->paragraph_state
+                                      ->switchParagraph($new_indent_level,
+                                                        $is_italic,
+                                                        $alignment,
+                                                        $paragraph_class));           
+      if (!$is_pre_chapter_paragraph) {
+        $this->flushPendingDropCapNumeral(False);
       }
-      $this->table_data = array ();
+
     }
-  }
-  
-  function printHtmlTextToBody($html_text) {
-    $this->is_book_started = True;
-    if ($this->is_in_table_mode) {
-      $this->flushPendingTableColumns();
-      $this->body->printHtmlText("\n</table>\n");
-      $this->is_in_table_mode = False;
+
+    //255
+    function setVerseNumber($verse_number) {
+        $this->verse_number = $verse_number;
     }
-    $this->flushPendingVerseInfo();
     
-    $this->body->printHtmlText($html_text);
-  }
-  
-  function printItalicsToBody($if_normal, $if_italic_paragraph) {
-    if ($this->paragraph_state->isItalic()) {
-      $this->printHtmlTextToBody($if_italic_paragraph);
-    } else {
-      $this->printHtmlTextToBody($if_normal);
+    //261 to be ported
+    //function setAlternateVerseNumber
+    
+    //266
+    private function flushPendingVerseInfo() {
+        if ( ($this->alternate_verse_number <> '') || 
+             ($this->verse_number <> '') )
+        {
+            if (!$this->paragraph_state->isOpen()) {
+                    $this->switchParagraph($this->default_paragraph[self::INDENT_LEVEL],
+                                           $this->default_paragraph[self::IS_ITALIC],
+                                           $this->default_paragraph[self::ALIGNMENT],
+                                           $this->default_paragraph[self::PARAGRAPH_CLASS]);
+            }
+          $anchor_verse = $this->verse_number ? $this->verse_number :
+                                                $this->alternate_verse_number;
+          if ( ($this->alternate_verse_number <> '') &&
+               ($this->verse_number <> '') )
+          {
+            $verse_label = $this->verse_number." (".$this->alternate_verse_number.")";     	
+          } else {
+            $verse_label = $anchor_verse;
+          }
+          $this->body->printHtmlText(" <span class='usfm-v'><b class='usfm'>".
+                                     "<a name='".$this->latest_chapter_number."_".
+                                     $anchor_verse."'></a>".$verse_label.
+                                     "</b></span>");
+          $this->verse_number = '';
+          $this->alternate_verse_number = '';
+        }
     }
-  }
-  
-  function printHtmlTextToFooter($html_text) {
-    $this->footer->printHtmlText($html_text);
-  }  
-  
-  function printHtmlText($html_text) {
-    if ($this->is_in_footer_mode) {
-      $this->printHtmlTextToFooter($html_text);
-    } else {
-      $this->printHtmlTextToBody($html_text);
+    
+    //294 to be ported
+    //function insertTableColumn
+    
+    //301
+    function flushPendingTableColumns() {
+        
+        if (!$this->is_in_table_mode) {
+          $this->is_in_table_mode = True;
+          $this->body->printHtmlText("\n<table class='usfm'>");
+        }
+        if (count($this->table_data) > 0) {
+          $this->body->printHtmlText("\n<tr class='usfm'>");
+            foreach ($this->table_data as $data) {
+            $html_text = 
+              "\n<td class='usfm-".($data[self::IS_HEADER] ? 'th' : 'tc').
+              ($data[self::IS_RIGHT_ALIGNED] ? "' align='right" : "").
+              "'>".$data[self::CONTENT_TEXT]."</td>\n";
+            $this->body->printHtmlText($html_text);
+          }
+          $this->table_data = array ();
+        }
     }
-  }
-  
-  function switchListLevel($new_list_level) {
-    $this->printHtmlTextToBody($this->paragraph_state
-                                    ->switchListLevel($new_list_level));
-  }  
+    
+    //320
+    function printHtmlTextToBody($html_text) {
+        $this->is_book_started = True;
+        if ($this->is_in_table_mode) {
+          $this->flushPendingTableColumns();
+          $this->body->printHtmlText("\n</table>\n");
+          $this->is_in_table_mode = False;
+        }
+        $this->flushPendingVerseInfo();
 
-  function newFooterEntry() {
-    $this->is_in_footer_mode = True;
-    $anchor_label = $this->newAnchorLabel();
-    $this->printHtmlTextToBody("<span class='usfm-f1'>[<a name='".
-                               $anchor_label."*' href='#".$anchor_label.
-                               "'>".$anchor_label."</a>]</span> ");
-    $this->printHtmlTextToFooter("<p class='usfm-footer'>".
-                                 "<span class='usfm-f2'>[<a name='".
-                                 $anchor_label."' href='#".$anchor_label.
-                                 "*'>".$anchor_label."</a>]</span> ");
-  }
-
-  private function newAnchorLabel() {
-    $count = ++$this->anchor_count;
-    $anchor_label = '';
-    do {
-      $anchor_label = chr(ord('a') + ($count % 26)) . $anchor_label;
-      $count = (int) floor($count / 26);
-    } while ($count > 0);
-    return $anchor_label;
-  }
+        $this->body->printHtmlText($html_text);
+    }
+    //332 to be ported
+    //function printItalicsToBody
+    
+    //340
+    function printHtmlTextToFooter($html_text) {
+        $this->footer->printHtmlText($html_text);
+    }  
+    
+    //347
+    function printHtmlText($html_text) {
+        if ($this->is_in_footer_mode) {
+          $this->printHtmlTextToFooter($html_text);
+        } else {
+          $this->printHtmlTextToBody($html_text);
+        }
+    }
+    //355 to be ported
+    //function switchListLevel
+    
+    //360
+    function newFooterEntry() {
+        $this->is_in_footer_mode = True;
+        $anchor_label = $this->newAnchorLabel();
+        $this->printHtmlTextToBody("<span class='usfm-f1'>[<a name='".
+                                   $anchor_label."*' href='#".$anchor_label.
+                                   "'>".$anchor_label."</a>]</span> ");
+        $this->printHtmlTextToFooter("<p class='usfm-footer'>".
+                                     "<span class='usfm-f2'>[<a name='".
+                                     $anchor_label."' href='#".$anchor_label.
+                                     "*'>".$anchor_label."</a>]</span> ");
+      }
   
-  function closeFooterEntry() {
-    $this->is_in_footer_mode = False;
-    $this->printHtmlTextToFooter("</p>");
-  }
+    //372
+    private function newAnchorLabel() {
+      $count = ++$this->anchor_count;
+      $anchor_label = '';
+      do {
+        $anchor_label = chr(ord('a') + ($count % 26)) . $anchor_label;
+        $count = (int) floor($count / 26);
+      } while ($count > 0);
+      return $anchor_label;
+    }
   
-  function getAndClearHtmlText() {
-  	global $wgExtensionAssetsPath;
-    $this->printHtmlTextToBody('');
-  	return "<link rel='stylesheet' href='".$wgExtensionAssetsPath.
-  	       "/UsfmTag/usfm-default.css' type='text/css'>".
-  	       $this->body->getAndClearHtmlText().
-           $this->paragraph_state
-                ->printTitle(True, 4, False, "Footnotes:").
-           $this->footer->getAndClearHtmlText();
-  }
+    //382
+    function closeFooterEntry() {
+      $this->is_in_footer_mode = False;
+      $this->printHtmlTextToFooter("</p>");
+    }
+  
+    //388
+    function getAndClearHtmlText() {
+  	//global $wgExtensionAssetsPath;
+        $this->printHtmlTextToBody('');
+            //return "<link rel='stylesheet' href='".$wgExtensionAssetsPath.
+            //      "/usfmtag/usfm-default.css' type='text/css'>".
+        
+            //return "<link rel='stylesheet' href='".DOKU_PLUGIN."usfmtag/style.css'".  
+              return "<link rel='stylesheet' href='lib".DIRECTORY_SEPARATOR."plugins".DIRECTORY_SEPARATOR.
+                                                "usfmtag".DIRECTORY_SEPARATOR."style.css'".
+                   " type='text/css'>".  
+                   $this->body->getAndClearHtmlText().
+               $this->paragraph_state
+                    ->printTitle(True, 4, False, "Footnotes:").
+               $this->footer->getAndClearHtmlText();
+    }
+    
+    
+  
+  
+  
+  
+  
+  
 }
+?>

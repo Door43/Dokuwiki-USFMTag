@@ -1,6 +1,7 @@
 <?php
 /**
  * Copyright (c) 2011 Rusmin Soetjipto
+ * ported to Dokuwiki by Yvonne Lu
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +32,8 @@ class UsfmParagraphState {
   private $paragraph_class = '';
   private $is_open = False;
 
-  function switchListLevel($new_list_level) {
+   
+function switchListLevel($new_list_level) {
     $result = '';
     for ($r = $new_list_level; $r < $this->list_level; $r++) {
       $result .= "\n</ul>";
@@ -41,8 +43,9 @@ class UsfmParagraphState {
     }
     $this->list_level = $new_list_level;
     return $result;
-  }
-
+  }  
+  
+  
   function closeParagraph() {
     if ($this->is_open) {
       $result .= $this->switchListLevel(0); 
@@ -56,8 +59,9 @@ class UsfmParagraphState {
     } else {
       return '';
     }
-  }
+  }  
   
+ 
   private function switchIndentLevel($new_indent_level) {
     $result = $this->closeParagraph();
     
@@ -70,8 +74,9 @@ class UsfmParagraphState {
     $this->indent_level = $new_indent_level;
     return $result;
   }
-
-  function switchParagraph($new_indent_level, $is_italic, $alignment, 
+  
+  
+ function switchParagraph($new_indent_level, $is_italic, $alignment, 
                            $paragraph_class)
   {
     $result = $this->switchIndentLevel($new_indent_level);
@@ -85,7 +90,7 @@ class UsfmParagraphState {
     return $result;
   }
   
-  function printTitle($is_horizontal_line, $level, $is_italic,
+ function printTitle($is_horizontal_line, $level, $is_italic,
                       $content) {
     $result = $this->switchIndentLevel(0);
 
@@ -103,15 +108,19 @@ class UsfmParagraphState {
     return $result;
   }
   
+  //111
   function isItalic() {
     return $this->is_italic;
   }
   
+  //115
   function isOpen() {
   	return $this->is_open;
   }
   
+  //119
   function getParagraphClass() {
   	return $this->paragraph_class;
   }
 }
+?>
