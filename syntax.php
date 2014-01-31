@@ -5,6 +5,9 @@
  * @license GPL 3 (http://www.gnu.org/licenses/gpl.html) - NOTE: USFMTag
  * @author Originally developed for MediaWiki by Rusmin Soetjipto, 
  * ported by Yvonne Lu <yvonnel@leapinglaptop.com>
+ * 
+ * 
+ * 1/30/14 added to lexer so that the UFSM tags can be in either all upper or all lower cases
  */
 
 
@@ -49,14 +52,19 @@ class syntax_plugin_usfmtag extends DokuWiki_Syntax_Plugin {
     * @return none
     * @public
     * @see render()
+    * <USFM>(?=.*</USFM>)
     */
     function connectTo($mode) {
       $this->Lexer->addEntryPattern('<USFM>(?=.*</USFM>)', $mode, 'plugin_usfmtag');
+      $this->Lexer->addEntryPattern('<usfm>(?=.*</usfm>)', $mode, 'plugin_usfmtag');
       
     }
-    
+    /*
+     * </USFM>
+     */
      function postConnect() {
         $this->Lexer->addExitPattern('</USFM>', 'plugin_usfmtag');
+        $this->Lexer->addExitPattern('</usfm>', 'plugin_usfmtag');
     }
 	
 

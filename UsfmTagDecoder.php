@@ -3,6 +3,16 @@
  * original code by:
  * Copyright (c) 2011 Rusmin Soetjipt
  * Ported to Dokuwiki by Yvonne Lu 2013
+ * 
+ * 1/30/14
+ * ported function renderOther, renderTable, renderIntroduction to support command
+ * 'i', 'it', 'd', 'r', 't', 'tl','x'
+ * 
+ * 
+ * There seems to be a bug in function renderChapterOrVerse for setting 
+ * alternate verse number and chapter.  It was using an uninitialized variable, 
+ * verse number.  I commented out the action for now.
+ * 
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -198,6 +208,11 @@ class UsfmTagDecoder {
             (substr($command, 0, 3) == 'toc')  )
             {
                 $this->renderIdentification($command, $level, $remaining);
+            }elseif (  (substr($command, 0, 1) == 'i') && 
+                  (substr($command, 0, 2) <> 'it') ) 
+            {
+              $this->renderIntroduction($command, $level, $remaining);
+
             }elseif (  (substr($command, 0, 1) == 'm') && 
                   ($command <> 'm') && ($command <> 'mi')  ) 
             {
@@ -209,6 +224,9 @@ class UsfmTagDecoder {
             {
               $this->renderTitleOrHeadingOrLabel($command, $level, $remaining);
 
+            } elseif (  ($command == 'd') || (substr($command, 0, 1) == 'r')  ) {
+              $this->renderTitleOrHeadingOrLabel($command, $level, $remaining);
+      
             } elseif (   (substr($command, 0, 1) == 'c') || 
                             (substr($command, 0, 1) == 'v')  )
             {
@@ -224,6 +242,12 @@ class UsfmTagDecoder {
                        (substr($command, 0, 3) <> 'pro')  )
             {
               $this->renderParagraph($command, $level, $remaining);
+              
+            }elseif (  (substr($command, 0, 1) == 't') &&
+                  (substr($command, 0, 2) <> 'tl')  )
+            {
+              $this->renderTable($command, $level, $remaining);
+              
             }elseif (  ($command == 'b') || ($command == 'cls') ||
                   (substr($command, 0, 2) == 'li') || 
                   ($command == 'm') || ($command == 'mi') || 
@@ -231,11 +255,19 @@ class UsfmTagDecoder {
             {
               $this->renderParagraph($command, $level, $remaining);
             }elseif (  (substr($command, 0, 1) == 'f') &&
-                        (substr($command, 0, 3) <> 'fig')  )
+                  (substr($command, 0, 3) <> 'fig')  )
             {
               $this->renderFootnoteOrCrossReference($raw_command, $remaining);
               // located in UsfmTag.3.php
-            }
+
+            } elseif (substr($command, 0, 1) == 'x') {
+              $this->renderFootnoteOrCrossReference($raw_command, $remaining);
+              // located in UsfmTag.3.php
+            }else {
+              $this->renderOther($raw_command, $remaining);
+            } // if 
+            
+            
             
            
         }//for
@@ -251,8 +283,12 @@ class UsfmTagDecoder {
         $this->displayUnsupportedCommand($command, $level, $remaining);
     }
     
-    //268 to be ported
-    //protected function renderIntroduction
+    //268
+    protected function renderIntroduction($command, $level,
+                                        $remaining)
+    {
+      $this->displayUnsupportedCommand($command, $level, $remaining);
+    }
     
     //274
     protected function renderTitleOrHeadingOrLabel($command, $level,
@@ -291,10 +327,12 @@ class UsfmTagDecoder {
         $this->usfm_text->printHtmlText($remaining);
         break;
       case 'va':
-        $this->usfm_text->setAlternateVerseNumber($verse_number);
+        //yil verse_number is not initialized  
+        //$this->usfm_text->setAlternateVerseNumber($verse_number);
         break;
       case 'vp':
-        $this->usfm_text->setPublishedChapterNumber($verse_number);
+        //yil $verse_number is not initialized  
+        //$this->usfm_text->setPublishedChapterNumber($verse_number);
         break;
       default:
         $this->usfm_text->printHtmlText($remaining);
@@ -324,8 +362,25 @@ class UsfmTagDecoder {
         }
     }
     
-    //340 to be ported
-    //protected function renderTable
+    //340 
+    protected function renderTable($command, $level, $remaining) {
+        switch ($command) {
+        case 'tr':
+          $this->usfm_text->flushPendingTableColumns();
+          break;
+        case 'th':
+          $this->usfm_text->insertTableColumn(True, False, $remaining);
+          break;
+        case 'thr':
+          $this->usfm_text->insertTableColumn(True, True, $remaining);
+          break;
+        case 'tc':
+          $this->usfm_text->insertTableColumn(False, False, $remaining);
+          break;
+        case 'tcr':
+          $this->usfm_text->insertTableColumn(False, True, $remaining);
+        }
+    }
     
     //358
     protected function renderFootnoteOrCrossReference($command, 
@@ -376,8 +431,16 @@ class UsfmTagDecoder {
       }
     }
     
-    //406 to be ported
-    //protected function renderOther
+    //406
+    protected function renderOther($command, $remaining) {
+        switch ($command) {
+        case 'nd':
+          $this->usfm_text->printHtmlText(netscapeCapitalize($remaining));
+          break;
+        default:
+          $this->renderGeneralCommand($command, 1, $remaining);
+        }
+      }
     
     //416
     protected function displayUnsupportedCommand($command, $level,

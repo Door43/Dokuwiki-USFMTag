@@ -4,7 +4,11 @@ Dokuwiki-USFMTag
 A text filter that converts USFM Scripture Text to HTML in Dokuwiki. Originally developed for MediaWiki by Rusmin 
 Soetjipto.
 
-Ported to Dokuwiki by Yvonne Lu (yvonnel@leapinglaptop.com)
+Ported to Dokuwiki by Yvonne Lu (yvonne@leapinglaptop.com)
+
+version 1.1 1/13/14
+ ported function renderOther, renderTable, renderIntroduction to support command
+ 'i', 'it', 'd', 'r', 't', 'tl','x'
 
 version 1.0 10/29/13
 - added syntax.php

@@ -2,6 +2,14 @@
 /**
  * Copyright (c) 2011 Rusmin Soetjipto
  * Ported to Dokuwiki by Yvonne Lu
+ * 
+ * 1/30/14 the following functions are ported
+ *  renderGeneralCommand
+ *  switchListLevel
+ *  setAlternateChapterNumber
+ *  setPublishedChapterNumber
+ *  setAlternateVerseNumber
+ *  all functions from the original UsfmText.php should be ported
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -149,11 +157,15 @@ class UsfmText {
         $this->latest_chapter_number = $chapter_number;
       }
       
-   //150 to be ported
-   //function setAlternateChapterNumber
+   //150
+   function setAlternateChapterNumber($alternate_chapter_number) {
+        $this->alternate_chapter_number = $alternate_chapter_number;
+   }
    
-   //154 to be ported
-   //function setPublishedChapterNumber
+   //154
+   function setPublishedChapterNumber($published_chapter_number) {
+    $this->published_chapter_number = $published_chapter_number;
+   }
    
    //158
     private function getFullChapterNumber() {
@@ -169,7 +181,7 @@ class UsfmText {
     
    //169
    private function isDropCapNumeralPending() {
-  	return ($thipublished_chapter_number <> '') ||
+  	return ($this->published_chapter_number <> '') ||
   	       ($this->getFullChapterNumber() <> '');
    }
    
@@ -264,8 +276,10 @@ class UsfmText {
         $this->verse_number = $verse_number;
     }
     
-    //261 to be ported
-    //function setAlternateVerseNumber
+    //261
+    function setAlternateVerseNumber($alternate_verse_number) {
+        $this->alternate_verse_number = $alternate_verse_number;
+    }
     
     //266
     private function flushPendingVerseInfo() {
@@ -296,8 +310,13 @@ class UsfmText {
         }
     }
     
-    //294 to be ported
-    //function insertTableColumn
+    //294
+    function insertTableColumn($is_header, $is_right_aligned, $text) {
+        //yil commented out debug statement
+        //wfDebug("inserting table column: ".$text."\n");
+  	$this->table_data[] = array ($is_header, $is_right_aligned, 
+                                 $text);
+    }
     
     //301
     function flushPendingTableColumns() {
@@ -331,8 +350,14 @@ class UsfmText {
 
         $this->body->printHtmlText($html_text);
     }
-    //332 to be ported
-    //function printItalicsToBody
+    //332
+    function printItalicsToBody($if_normal, $if_italic_paragraph) {
+        if ($this->paragraph_state->isItalic()) {
+          $this->printHtmlTextToBody($if_italic_paragraph);
+        } else {
+          $this->printHtmlTextToBody($if_normal);
+        }
+      }
     
     //340
     function printHtmlTextToFooter($html_text) {
@@ -347,8 +372,11 @@ class UsfmText {
           $this->printHtmlTextToBody($html_text);
         }
     }
-    //355 to be ported
-    //function switchListLevel
+    //355 
+    function switchListLevel($new_list_level) {
+        $this->printHtmlTextToBody($this->paragraph_state
+                                        ->switchListLevel($new_list_level));
+      }  
     
     //360
     function newFooterEntry() {
