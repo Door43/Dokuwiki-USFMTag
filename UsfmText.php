@@ -3,6 +3,8 @@
  * Copyright (c) 2011 Rusmin Soetjipto
  * Ported to Dokuwiki by Yvonne Lu
  * 
+ * 4/27/14 removed "Footnote:" title as requested by the user
+ * 
  * 1/30/14 the following functions are ported
  *  renderGeneralCommand
  *  switchListLevel
@@ -420,8 +422,9 @@ class UsfmText {
                                                 "usfmtag".DIRECTORY_SEPARATOR."style.css'".
                    " type='text/css'>".  
                    $this->body->getAndClearHtmlText().
+               //->printTitle(True, 4, False, "Footnotes:").       
                $this->paragraph_state
-                    ->printTitle(True, 4, False, "Footnotes:").
+                    ->printTitle(True, 4, False, "").
                $this->footer->getAndClearHtmlText();
     }
     
