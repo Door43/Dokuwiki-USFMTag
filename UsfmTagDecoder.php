@@ -222,7 +222,7 @@ class UsfmTagDecoder {
                         //$this->usfm_text->printHtmlText("<br/>raw_command=: ".$raw_command);
                         $leftover = mb_substr($raw_command, $pos+1, $cmdlen);
                         //$this->usfm_text->printHtmlText("<br/>leftover=: ".  $leftover);
-                        $remaining = $leftover.$remaining;
+                        $remaining = $leftover.' '.$remaining;
                         //$this->usfm_text->printHtmlText("<br/>remaining=: ".  $remaining);
                         $raw_command = mb_substr($raw_command, 0, $pos+1);
                         //$this->usfm_text->printHtmlText("<br/>raw_command=: ".$raw_command);
