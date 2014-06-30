@@ -4,6 +4,15 @@
  * Copyright (c) 2011 Rusmin Soetjipt
  * Ported to Dokuwiki by Yvonne Lu 2013
  * 
+ * 6/28/14
+ * Corrected a bug concerning command parsing.  Punctuation was parsed with the
+ * command which caused invalid rendering behavior.  I've noticed that many of the
+ * php string functions utilized in the original code are single byte functions.
+ * This may cause a problem when the string is in unicode that requires double
+ * byte operation. Also, preg_match and ereg_match both hangs my version of 
+ * dokuwiki.  As a result, I was not able to use these functions.
+ * 
+ * 
  * 1/30/14
  * ported function renderOther, renderTable, renderIntroduction to support command
  * 'i', 'it', 'd', 'r', 't', 'tl','x'
@@ -173,8 +182,16 @@ class UsfmTagDecoder {
         
         $usfm_segments = explode("\\", $raw_text);
         
+            
         for ($i=0; $i<sizeof($usfm_segments); $i++) {
+            
             $remaining = strpbrk($usfm_segments[$i], " \n");
+            
+            /*yil debug
+            $this->usfm_text->printHtmlText("<br/>remaining: ");
+            $this->usfm_text->printHtmlText($remaining);
+            $this->usfm_text->printHtmlText("<br/>");*/
+            
             if ($remaining === false) {
               $raw_command = $usfm_segments[$i];
               $remaining = '';
@@ -190,7 +207,35 @@ class UsfmTagDecoder {
             
             if ($raw_command == '') {
                 continue;
+            } else {
+                //yil fix punctuation appended to command token
+                //note:  preg_match and ereg_match hangs my version of dokuwiki for some 
+                //reason so I'm not using it here
+                $pos = mb_strpos($raw_command, '*');
+                $cmdlen= mb_strlen($raw_command);
+                
+                if ($pos){
+                    /* yil debug
+                    $this->usfm_text->printHtmlText("<br/>pos=: ".  strval($pos));
+                    $this->usfm_text->printHtmlText("<br/>length=: ".  strval(mb_strlen($raw_command)));*/
+                    if (($pos+1)<$cmdlen){
+                        //$this->usfm_text->printHtmlText("<br/>raw_command=: ".$raw_command);
+                        $leftover = mb_substr($raw_command, $pos+1, $cmdlen);
+                        //$this->usfm_text->printHtmlText("<br/>leftover=: ".  $leftover);
+                        $remaining = $leftover.' '.$remaining;
+                        //$this->usfm_text->printHtmlText("<br/>remaining=: ".  $remaining);
+                        $raw_command = mb_substr($raw_command, 0, $pos+1);
+                        //$this->usfm_text->printHtmlText("<br/>raw_command=: ".$raw_command);
+                    }
+                    
+                }
+                
             }
+            
+            /*yil debug
+            $this->usfm_text->printHtmlText("<br/>raw_command: ");
+            $this->usfm_text->printHtmlText($raw_command);
+            $this->usfm_text->printHtmlText("<br/>");*/
             
             //filter out number digits from raw command
             $main_command_length = strcspn($raw_command, '0123456789');
@@ -201,7 +246,12 @@ class UsfmTagDecoder {
             } else {
                 $level = 1;
             }
+            /*yil debug
+            $this->usfm_text->printHtmlText("<br/>command: ");
+            $this->usfm_text->printHtmlText($command);
+            $this->usfm_text->printHtmlText("<br/>");*/
             
+           
             //port it case by case basis  
             if (  ($command == 'h')  || (substr($command, 0, 2) == 'id') ||
             ($command == 'rem')  || ($command == 'sts') ||
@@ -280,6 +330,7 @@ class UsfmTagDecoder {
     protected function renderIdentification($command, $level, 
                                           $remaining)
     {
+        
         $this->displayUnsupportedCommand($command, $level, $remaining);
     }
     
@@ -449,6 +500,9 @@ class UsfmTagDecoder {
       if ($level > 1) {
           $command = $command.$level;
       }
+          //yil debug
+          //$this->usfm_text
+          //        ->printHtmlText(" USFMTag alert: Encountered unsupported command:".$command.' '.$remaining."\n");
           $this->usfm_text
            ->printHtmlText("<!-- usfm:\\".$command.' '.$remaining." -->\n");  
     }
@@ -457,6 +511,7 @@ class UsfmTagDecoder {
     protected function renderGeneralCommand($command, $level, 
                                           $remaining)
     {  
+        
       if (array_key_exists($command, $this->substitution_table)) {   
         $html_command = $this->substitution_table[$command];
         if (sizeof($html_command) > 1) {
