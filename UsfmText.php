@@ -3,8 +3,6 @@
  * Copyright (c) 2011 Rusmin Soetjipto
  * Ported to Dokuwiki by Yvonne Lu
  * 
- * 4/27/14 removed "Footnote:" title as requested by the user
- * 
  * 1/30/14 the following functions are ported
  *  renderGeneralCommand
  *  switchListLevel
@@ -30,6 +28,9 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
+ * 7-25-14 Yvonne Lu 
+ * changed function newAnchorLabel to generate number instead of letter labels
  */
 
 /* yil porting notes:
@@ -384,6 +385,7 @@ class UsfmText {
     function newFooterEntry() {
         $this->is_in_footer_mode = True;
         $anchor_label = $this->newAnchorLabel();
+        
         $this->printHtmlTextToBody("<span class='usfm-f1'>[<a name='".
                                    $anchor_label."*' href='#".$anchor_label.
                                    "'>".$anchor_label."</a>]</span> ");
@@ -393,14 +395,18 @@ class UsfmText {
                                      "*'>".$anchor_label."</a>]</span> ");
       }
   
-    //372
+    //yil this function origianlly generates letter footnote labels.  
+    //It's changed to number so 
+    //that international users can have an easier time to read it.      
     private function newAnchorLabel() {
       $count = ++$this->anchor_count;
+      $anchor_label = strval($count);
+      /* yil original letter generating label code
       $anchor_label = '';
       do {
         $anchor_label = chr(ord('a') + ($count % 26)) . $anchor_label;
         $count = (int) floor($count / 26);
-      } while ($count > 0);
+      } while ($count > 0);*/
       return $anchor_label;
     }
   

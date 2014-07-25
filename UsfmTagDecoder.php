@@ -4,6 +4,10 @@
  * Copyright (c) 2011 Rusmin Soetjipt
  * Ported to Dokuwiki by Yvonne Lu 2013
  * 
+ * 7/25/14
+ * disable \add and \add* tags
+ * 
+ * 
  * 6/28/14
  * Corrected a bug concerning command parsing.  Punctuation was parsed with the
  * command which caused invalid rendering behavior.  I've noticed that many of the
@@ -103,8 +107,11 @@ class UsfmTagDecoder {
         "x"    => array ("\n<span class='usfm-selah'>"),
         "x*"   => array ("</span>\n"),
         // Other
-        "add"  => array ("<i class='usfm'>[", "</i>["),
-        "add*" => array ("]</i>", "]<i class='usfm'>"),
+        // 7-25-14 disabled add tags
+        //"add"  => array ("<i class='usfm'>[", "</i>["),
+        //"add*" => array ("]</i>", "]<i class='usfm'>"),
+        "add"  => array ("<!--"),
+        "add*" => array ("-->"),
         "bk"   => array ("<i class='usfm'>&quot;", "</i>&quot;"),
         "bk*"  => array ("&quot;</i>", "&quot;<i class='usfm'>"),
         "dc"   => array ("<code class='usfm'>"),
