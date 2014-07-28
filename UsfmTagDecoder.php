@@ -110,8 +110,8 @@ class UsfmTagDecoder {
         // 7-25-14 disabled formatting for \add tags <jesse@distantshores.org>
         //"add"  => array ("<i class='usfm'>[", "</i>["),
         //"add*" => array ("]</i>", "]<i class='usfm'>"),
-        "add"  => array (""),
-        "add*" => array (""),
+        "add"  => array (" "),
+        "add*" => array (" "),
         "bk"   => array ("<i class='usfm'>&quot;", "</i>&quot;"),
         "bk*"  => array ("&quot;</i>", "&quot;<i class='usfm'>"),
         "dc"   => array ("<code class='usfm'>"),
