@@ -20,7 +20,10 @@
  * THE SOFTWARE.
  *
  * 7-25-14 Yvonne Lu removed left border from blockquote
-
+ * 8-6-14 Yvonne Lu changed usfm-v and usfm-c to have the same line height of 
+ *        2em.  usfm-v used to have line-height of 1, usfm-c used to have line-
+ *        height of 2.5em.  When that happens, sometimes verses on the second
+ *        line runs into the chapter number.
  */
 
 @CHARSET "UTF-8";
@@ -71,8 +74,8 @@ BLOCKQUOTE.usfm { margin: 0 0.5em 0 1.5em;
 SUP.usfm,
 SPAN.usfm-f1, 
 SPAN.usfm-f2,
-SPAN.usfm-v { height: 0;
-              line-height: 1;
+SPAN.usfm-v { height: 0;                 
+              line-height: 2em; 
               vertical-align: baseline;
               _vertical-align: bottom;
               position: relative;
@@ -82,7 +85,7 @@ SPAN.usfm-v { height: 0;
 SPAN.usfm-c { float: left; 
               margin: 0 0.25em 0 0;
               padding: 0;
-              line-height: 2.5em;
+              line-height: 2em;
               top: 0.5em;
 }
 SPAN.usfm-c-indent { float: left; 

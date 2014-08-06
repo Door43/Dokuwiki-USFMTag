@@ -4,6 +4,11 @@
  * Copyright (c) 2011 Rusmin Soetjipt
  * Ported to Dokuwiki by Yvonne Lu 2013
  * 
+ * 8/6/14 Yvonne Lu
+ * translate \s5 to <hr>
+ * 
+ * Fixed space before punctuation problem for add tags
+ * 
  * 7/25/14
  * Disabled formatting for \add tags <jesse@distantshores.org>
  * 
@@ -111,7 +116,7 @@ class UsfmTagDecoder {
         //"add"  => array ("<i class='usfm'>[", "</i>["),
         //"add*" => array ("]</i>", "]<i class='usfm'>"),
         "add"  => array (" "),
-        "add*" => array (" "),
+        "add*" => array (""),
         "bk"   => array ("<i class='usfm'>&quot;", "</i>&quot;"),
         "bk*"  => array ("&quot;</i>", "&quot;<i class='usfm'>"),
         "dc"   => array ("<code class='usfm'>"),
@@ -125,6 +130,7 @@ class UsfmTagDecoder {
         "pn*"  => array (""),
         "qt"   => array ("<i class='usfm'>", "</i>"),
         "qt*"  => array ("</i>", "<i class='usfm'>"),
+        "s5"   => array ("<hr>"), //Yvonne added 8/6/14
         "sig"  => array ("<i class='usfm'>", "</i>"),
         "sig*" => array ("</i>", "<i class='usfm'>"),
         "sls"  => array ("<i class='usfm'>", "</i>"),
@@ -279,7 +285,14 @@ class UsfmTagDecoder {
                   (substr($command, 0, 3) <> 'sig') &&
                   (substr($command, 0, 3) <> 'sls')  )
             {
-              $this->renderTitleOrHeadingOrLabel($command, $level, $remaining);
+               if ($level==5) {
+                    //Yvonne substitue s5 with <hr>
+                    $command .=$level;
+                    $level=1;
+                    $this->renderGeneralCommand($command, $level, $remaining);
+               } else { 
+                    $this->renderTitleOrHeadingOrLabel($command, $level, $remaining);
+               }
 
             } elseif (  ($command == 'd') || (substr($command, 0, 1) == 'r')  ) {
               $this->renderTitleOrHeadingOrLabel($command, $level, $remaining);
@@ -495,6 +508,17 @@ class UsfmTagDecoder {
         case 'nd':
           $this->usfm_text->printHtmlText(netscapeCapitalize($remaining));
           break;
+        case 'add': //Yvonne processing add and add* tag here to fix space before punctuation problem
+            $this->renderGeneralCommand($command, 1, trim($remaining)); //get rid of space at the end
+            break;
+        case 'add*': //do not add space if remaining start with punctuation
+            if (ctype_punct(substr($remaining, 0, 1))){
+                $this->usfm_text->printHtmlText($remaining);
+            }else {
+                $this->usfm_text->printHtmlText(" ".$remaining);
+            }
+            
+            break;
         default:
           $this->renderGeneralCommand($command, 1, $remaining);
         }
@@ -528,7 +552,8 @@ class UsfmTagDecoder {
         } else {
           $this->usfm_text->printHtmlText($html_command[self::IF_NORMAL]);
         }          
-        $this->usfm_text->printHtmlText($remaining);
+        $this->usfm_text->printHtmlText($remaining); 
+        
       } elseif (array_key_exists($command, $this->paragraph_settings)) {
         $this->switchParagraph($command, $level);
         $this->usfm_text->printHtmlText($remaining);

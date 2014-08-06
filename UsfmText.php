@@ -31,6 +31,9 @@
  * 
  * 7-25-14 Yvonne Lu 
  * changed function newAnchorLabel to generate number instead of letter labels
+ * 
+ * 8-6-14 Yvonne Lu
+ * commented out some code related to is_verse_popups_extension_available
  */
 
 /* yil porting notes:
@@ -54,6 +57,9 @@ class UsfmBodyOrFooter {
   }
   
    function printHtmlText($html_text) {
+      //echo "&quot$html_text&quot<br>";
+       $this->html_text .= $html_text;
+    /*   
     $final_text = '';
     if ($this->is_verse_popups_extension_available) {
       //global $wgOut;
@@ -69,7 +75,7 @@ class UsfmBodyOrFooter {
       }
     }
     $final_text = str_replace("~", "&nbsp;", $final_text.$html_text);
-    $this->html_text .= $final_text;
+    $this->html_text .= $final_text;*/
   }
   
   function getAndClearHtmlText() {
