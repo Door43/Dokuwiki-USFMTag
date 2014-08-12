@@ -145,7 +145,7 @@ class UsfmTagDecoder {
         "bd*"  => array ("</b>"),
         "it"   => array ("<i class='usfm'>", "</i>"),
         "it*"  => array ("</i>", "<i class='usfm'>"),
-        "bdit" => array ("<i class='usfm'><b class='usfm'>", "</i></b>"),
+        "bdit" => array ("<i class='usfm'><b class='usfm'> ", "</i></b>"),
         "bdit*"=> array ("</b></i>", "<b class='usfm'><i class='usfm'>"),
         "no"   => array ("", "</i>"),
         "no*"  => array ("", "<i class='usfm'>"),
