@@ -34,6 +34,9 @@
  * 
  * 8-6-14 Yvonne Lu
  * commented out some code related to is_verse_popups_extension_available
+ * 
+ * 8-8-14 Yvonne Lu
+ * generating footnote number starting at 1 instead of 0
  */
 
 /* yil porting notes:
@@ -406,7 +409,7 @@ class UsfmText {
     //that international users can have an easier time to read it.      
     private function newAnchorLabel() {
       $count = ++$this->anchor_count;
-      $anchor_label = strval($count);
+      $anchor_label = strval(($count+1)); //generating footnote number starting at 1 instead of 0
       /* yil original letter generating label code
       $anchor_label = '';
       do {
