@@ -444,8 +444,11 @@ class UsfmText {
     }
     
     
-  
-  
+    //YIL added this function to corrent indent bug
+    function closeParagraph() {
+        $this->body->printHtmlText($this->paragraph_state
+                                    ->closeParagraph());  
+    }
   
   
   

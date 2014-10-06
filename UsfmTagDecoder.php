@@ -4,6 +4,13 @@
  * Copyright (c) 2011 Rusmin Soetjipt
  * Ported to Dokuwiki by Yvonne Lu 2013
  * 
+ * 10/6/14 Yvonne Lu
+ * Correct indent problem in poetry
+ * 
+ * 8/13/14 Yvonne Lu
+ * Implemented /ip as paragraph
+ * Implemented /is and /imt as section headings
+ * 
  * 8/6/14 Yvonne Lu
  * translate \s5 to <hr>
  * 
@@ -83,7 +90,8 @@ class UsfmTagDecoder {
     "ph"  => array (0, False, 'justify', 'usfm-hanging'),
     "pi"  => array (1, False, 'justify', 'usfm-indent'),
     "q"   => array (2, False, 'left', 'usfm-hanging'),
-    "qm"  => array (1, True, 'left', 'usfm-hanging')
+    "qm"  => array (1, True, 'left', 'usfm-hanging'),
+    "ip"  => array (0, False, 'justify', 'usfm-indent')
     ); 
     private $title_settings = array (
         // Titles, Headings, and Label (w/o level parameter)
@@ -91,6 +99,8 @@ class UsfmTagDecoder {
         "r"   => array (5, True),
         "sr"  => array (5, True),
         // Titles, Headings, and Label (w/ level parameter)
+        "imt" => array (1, False),
+        "is"  => array (1, False),
         "mt"  => array (1, False),
         "mte" => array (1, False),
         "ms"  => array (2, False),
@@ -145,7 +155,7 @@ class UsfmTagDecoder {
         "bd*"  => array ("</b>"),
         "it"   => array ("<i class='usfm'>", "</i>"),
         "it*"  => array ("</i>", "<i class='usfm'>"),
-        "bdit" => array ("<i class='usfm'><b class='usfm'> ", "</i></b>"),
+        "bdit" => array ("<i class='usfm'><b class='usfm'>", "</i></b>"),
         "bdit*"=> array ("</b></i>", "<b class='usfm'><i class='usfm'>"),
         "no"   => array ("", "</i>"),
         "no*"  => array ("", "<i class='usfm'>"),
@@ -180,6 +190,8 @@ class UsfmTagDecoder {
       );
     
     const MAX_SELAH_CROSS_REFERENCES_LENGTH = 10;
+    
+    private $is_poetry=false; //yil added this to solve indent problem
     
     
     public function __construct() {
@@ -271,6 +283,14 @@ class UsfmTagDecoder {
             (substr($command, 0, 3) == 'toc')  )
             {
                 $this->renderIdentification($command, $level, $remaining);
+            }elseif ($command == 'ip'){
+          
+              $this->renderParagraph($command, $level, $remaining);
+              
+            }elseif (($command == 'is') || ($command == 'imt')) {
+                
+              $this->renderTitleOrHeadingOrLabel($command, $level, $remaining);
+              
             }elseif (  (substr($command, 0, 1) == 'i') && 
                   (substr($command, 0, 2) <> 'it') ) 
             {
@@ -307,7 +327,7 @@ class UsfmTagDecoder {
                   (substr($command, 0, 2) <> 'qt')  )
             {
               $this->renderPoetry($command, $level, $remaining);
-            }elseif (  (substr($command, 0, 1) == 'p')  && ($command <> 'pb') &&
+            }elseif (  (substr($command, 0, 1) == 'p')  && ($command <> 'pb') && 
                        (substr($command, 0, 2) <> 'pn') &&
                        (substr($command, 0, 3) <> 'pro')  )
             {
@@ -414,10 +434,11 @@ class UsfmTagDecoder {
     
     //318
     protected function renderPoetry($command, $level, $remaining) {
+        $this->is_poetry = true;
         $this->renderGeneralCommand($command, $level, $remaining);
       }
       
-    //322
+    //yil added case for 'b' to close out paragraph
     protected function renderParagraph($command, $level, $remaining) {
         switch ($command) {
           case 'nb':
@@ -427,6 +448,14 @@ class UsfmTagDecoder {
           case 'li':
             $this->usfm_text->switchListLevel($level);
             $this->usfm_text->printHtmlText("<li class='usfm'>".$remaining);
+            break;
+          case 'b':
+            $this->renderGeneralCommand($command, $level, $remaining);
+              
+            if ($this->is_poetry){                 
+                $result =  $this->switchParagraph('m', 1); 
+                $this->is_poetry=false;
+            }
             break;
           default:
             $this->renderGeneralCommand($command, $level, $remaining);
@@ -555,8 +584,9 @@ class UsfmTagDecoder {
         $this->usfm_text->printHtmlText($remaining); 
         
       } elseif (array_key_exists($command, $this->paragraph_settings)) {
+                   
         $this->switchParagraph($command, $level);
-        $this->usfm_text->printHtmlText($remaining);
+        $this->usfm_text->printHtmlText($remaining); 
       } elseif (array_key_exists($command, $this->title_settings)) {
         $this->printTitle($command, $level, $remaining);
       } else {
@@ -579,6 +609,7 @@ class UsfmTagDecoder {
      
     //459  
     private function switchParagraph($command, $level) {
+        
         $setting = $this->paragraph_settings[$command];
         $this->usfm_text
              ->switchParagraph($level + $setting[self::BASE_LEVEL] - 1,
