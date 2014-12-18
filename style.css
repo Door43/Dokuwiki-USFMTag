@@ -24,6 +24,9 @@
  *        2em.  usfm-v used to have line-height of 1, usfm-c used to have line-
  *        height of 2.5em.  When that happens, sometimes verses on the second
  *        line runs into the chapter number.
+ *
+ * 12-17-14 Yvonne Lu added usfm class for unordered list to remove bullets and
+ *          ensure list items to have black colored font
  */
 
 @CHARSET "UTF-8";
@@ -100,3 +103,23 @@ SPAN.usfm-selah { float: right;
                 }
 TD.usfm-tc,
 TD.usfm-th { padding-right: 1.5em; }
+
+/*footnote window */
+SPAN.fw {
+    display:none;
+}
+a:hover + SPAN.fw{
+    display:inline;
+    color:red;
+    font-size:1.2em;
+    border:1px solid red;
+}
+
+ul.usfm {
+    list-style-type: none;
+}
+
+li.usfm {
+    color:black !important;
+}
+
