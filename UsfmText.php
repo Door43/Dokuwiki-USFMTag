@@ -37,6 +37,9 @@
  * 
  * 8-8-14 Yvonne Lu
  * generating footnote number starting at 1 instead of 0
+ * 
+ * 1-14-15 YvonneLu
+ * Added popup window for footnotes
  */
 
 /* yil porting notes:
@@ -379,6 +382,7 @@ class UsfmText {
     //347
     function printHtmlText($html_text) {
         if ($this->is_in_footer_mode) {
+          $this->printHtmlTextToBody($html_text);  //YIL added text for popup window
           $this->printHtmlTextToFooter($html_text);
         } else {
           $this->printHtmlTextToBody($html_text);
@@ -390,14 +394,20 @@ class UsfmText {
                                         ->switchListLevel($new_list_level));
       }  
     
-    //360
+    //1-14-15 added popup window for footnote
     function newFooterEntry() {
         $this->is_in_footer_mode = True;
         $anchor_label = $this->newAnchorLabel();
-        
+        /*
         $this->printHtmlTextToBody("<span class='usfm-f1'>[<a name='".
                                    $anchor_label."*' href='#".$anchor_label.
-                                   "'>".$anchor_label."</a>]</span> ");
+                                   "'>".$anchor_label."</a>]</span> ");*/
+        $this->printHtmlTextToBody("<span class='popup_marker'>"
+                                   ."<span class='usfm-f1'>[<a name='".
+                                   $anchor_label."*' href='#".$anchor_label.
+                                   "'>".$anchor_label."</a>]</span>" 
+                                   ."<span class='popup'>");
+        
         $this->printHtmlTextToFooter("<p class='usfm-footer'>".
                                      "<span class='usfm-f2'>[<a name='".
                                      $anchor_label."' href='#".$anchor_label.
@@ -419,8 +429,11 @@ class UsfmText {
       return $anchor_label;
     }
   
-    //382
+    
     function closeFooterEntry() {
+      //end popup
+      $this->printHtmlTextToBody("</span></span>"); //added popup window end tags
+      
       $this->is_in_footer_mode = False;
       $this->printHtmlTextToFooter("</p>");
     }

@@ -27,6 +27,8 @@
  *
  * 12-17-14 Yvonne Lu added usfm class for unordered list to remove bullets and
  *          ensure list items to have black colored font
+ *
+ * 1-14-15 Yvonne Lu added popup window for footnote
  */
 
 @CHARSET "UTF-8";
@@ -105,15 +107,24 @@ TD.usfm-tc,
 TD.usfm-th { padding-right: 1.5em; }
 
 /*footnote window */
-SPAN.fw {
+span.popup_marker:hover .popup{
+    
+    position:absolute;
+    z-index:500; 
+    display:block;
+    width:50%;
+    background-color: gold;
+    padding:1em 1em 1em 5em;
+    border:1px solid black;
+    color:black;
+    text-align:left;
+
+}
+
+span.popup_marker .popup {
     display:none;
 }
-a:hover + SPAN.fw{
-    display:inline;
-    color:red;
-    font-size:1.2em;
-    border:1px solid red;
-}
+
 
 ul.usfm {
     list-style-type: none;
@@ -122,4 +133,9 @@ ul.usfm {
 li.usfm {
     color:black !important;
 }
+
+
+
+
+
 
