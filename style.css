@@ -29,6 +29,9 @@
  *          ensure list items to have black colored font
  *
  * 1-14-15 Yvonne Lu added popup window for footnote
+ *
+ * 1-14-15 Yvonne Lu minor style change to popup window
+
  */
 
 @CHARSET "UTF-8";
@@ -107,17 +110,18 @@ TD.usfm-tc,
 TD.usfm-th { padding-right: 1.5em; }
 
 /*footnote window */
+span.popup_marker{
+    text-align:left;
+}
 span.popup_marker:hover .popup{
     
     position:absolute;
     z-index:500; 
-    display:block;
-    width:50%;
-    background-color: gold;
-    padding:1em 1em 1em 5em;
-    border:1px solid black;
+    max-width:50%;
+    display:inline;
+    background-color: lightgray;
+    padding:0.2em 3em 0.2em 3em;
     color:black;
-    text-align:left;
 
 }
 
