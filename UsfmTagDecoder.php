@@ -161,7 +161,9 @@ class UsfmTagDecoder {
         "no*"  => array ("", "<i class='usfm'>"),
         "sc"   => array ("<small class='usfm'>"),
         "sc*"  => array ("</small>"),
-        "\\"   => array ("<br>")
+        "\\"   => array ("<br>"),
+        "skip" => array ("</usfm> <br>~~NO_STYLING~~"),
+        "skip*" => array ("<br>~~NO_STYLING~~ <br><usfm>")
       );
     const BEFORE_REMAINING = 0;
     const AFTER_REMAINING = 1;
@@ -501,7 +503,8 @@ class UsfmTagDecoder {
           } else {
           $this->is_selah_cross_reference = False;     
           $this->usfm_text->newFooterEntry();
-          $this->usfm_text->printHtmlTextToFooter($remaining);
+          //$this->usfm_text->printHtmlTextToFooter($remaining);
+          $this->usfm_text->printHtmlText($remaining);
           }
         break;
       case 'x*':
@@ -516,8 +519,10 @@ class UsfmTagDecoder {
           break;
       case 'fk':
       case 'xk':
+        //$this->usfm_text
+        //     ->printHtmlTextToFooter(netscapeCapitalize($remaining));
         $this->usfm_text
-             ->printHtmlTextToFooter(netscapeCapitalize($remaining));
+             ->printHtmlText(netscapeCapitalize($remaining));  
         break;
       default:
         if (array_key_exists($command, 
@@ -527,7 +532,8 @@ class UsfmTagDecoder {
           $remaining = $setting[self::BEFORE_REMAINING].$remaining.
                        $setting[self::AFTER_REMAINING];
         }
-        $this->usfm_text->printHtmlTextToFooter($remaining);    
+        //$this->usfm_text->printHtmlTextToFooter($remaining);  
+        $this->usfm_text->printHtmlText($remaining);  
       }
     }
     
