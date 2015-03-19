@@ -4,6 +4,10 @@
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Yvonne Lu <yvonnel@leapinglaptop.com>
+ * 
+ * 3-18-15
+ * Added fix so that it will work with the Discussion plugin
+ * 
  */
 
 // must be run within Dokuwiki
@@ -20,20 +24,32 @@ class action_plugin_usfmtag extends DokuWiki_Action_Plugin {
 
    function handle_parser_wikitext_preprocess(&$event, $param) {
        global $ID;
+       
        if(substr($ID,-5) != '.usfm') return true;
        
+        //see if this is submitted with a discussion window
+        $discussion = $_REQUEST['comment'];
+
+        if (!$discussion) {
+            //added infile to mark that this file has usfm extention
             $event->data = "<USFM>\n".$event->data."\n</USFM>";
 
-       /*     
-       if ($this->getConf('frontmatter')){
-           if (preg_match('/^---\s*\n(.*?\n?)^---\s*$\n?(.+)/sm',$event->data, $match)){
-               $event->data = sprintf("%s<markdown>\n%s\n</markdown>", $match[1], $match[2]);
-           }else{
-               $event->data = "<markdown>\n".$event->data."\n</markdown>";
-           }
-       }else{
-           $event->data = "<markdown>\n".$event->data."\n</markdown>";
-       }*/
+            //get discussion plugin to work with usfm file
+
+            $pattern = '/~~DISCUSSION.*~~/';
+
+            $event->data = preg_replace($pattern, "</USFM>$0<USFM>", $event->data);
+        }
+
+        //echo "action:  ".$event->data."<br>";
+            
+            
+            
+            
+            
+           
+            
+            
    }
 
 }

@@ -40,6 +40,11 @@
  * 
  * 1-14-15 YvonneLu
  * Added popup window for footnotes
+ * 
+ * 3-18-15 Yvonne Lu
+ * Took out link to stylesheet in getAndClearHtmlText.  It should take place
+ * in the header.
+ *
  */
 
 /* yil porting notes:
@@ -438,19 +443,22 @@ class UsfmText {
       $this->printHtmlTextToFooter("</p>");
     }
   
-    //388
+    
     function getAndClearHtmlText() {
-  	//global $wgExtensionAssetsPath;
-        $this->printHtmlTextToBody('');
-            //return "<link rel='stylesheet' href='".$wgExtensionAssetsPath.
-            //      "/usfmtag/usfm-default.css' type='text/css'>".
-        
-            //return "<link rel='stylesheet' href='".DOKU_PLUGIN."usfmtag/style.css'".  
+  	
+              $this->printHtmlTextToBody('');
+              /*
               return "<link rel='stylesheet' href='lib".DIRECTORY_SEPARATOR."plugins".DIRECTORY_SEPARATOR.
                                                 "usfmtag".DIRECTORY_SEPARATOR."style.css'".
                    " type='text/css'>".  
-                   $this->body->getAndClearHtmlText().
-               //->printTitle(True, 4, False, "Footnotes:").       
+                   $this->body->getAndClearHtmlText().     
+               $this->paragraph_state
+                    ->printTitle(True, 4, False, "").
+               $this->footer->getAndClearHtmlText();*/
+              
+              
+               
+               return $this->body->getAndClearHtmlText().     
                $this->paragraph_state
                     ->printTitle(True, 4, False, "").
                $this->footer->getAndClearHtmlText();
