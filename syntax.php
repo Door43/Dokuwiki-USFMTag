@@ -3,10 +3,10 @@
  * USFMTag plugin for DokuWiki.
  *
  * @license GPL 3 (http://www.gnu.org/licenses/gpl.html) - NOTE: USFMTag
- * @author Originally developed for MediaWiki by Rusmin Soetjipto, 
+ * @author Originally developed for MediaWiki by Rusmin Soetjipto,
  * ported by Yvonne Lu <yvonnel@leapinglaptop.com>
- * 
- * 
+ *
+ *
  * 1/30/14 added to lexer so that the UFSM tags can be in either all upper or all lower cases
  */
 
@@ -26,20 +26,20 @@ require_once (DOKU_PLUGIN . 'usfmtag/UsfmTagDecoder.php');
  */
 class syntax_plugin_usfmtag extends DokuWiki_Syntax_Plugin {
 
-   
 
-   
+
+
     function getType(){
         return 'protected';
     }
-    
+
     function getPType() {
         return 'block';
     }
-	
-   
 
-   
+
+
+
     function getSort(){
         return 68;
     }
@@ -57,7 +57,7 @@ class syntax_plugin_usfmtag extends DokuWiki_Syntax_Plugin {
     function connectTo($mode) {
       $this->Lexer->addEntryPattern('<USFM>(?=.*</USFM>)', $mode, 'plugin_usfmtag');
       $this->Lexer->addEntryPattern('<usfm>(?=.*</usfm>)', $mode, 'plugin_usfmtag');
-      
+
     }
     /*
      * </USFM>
@@ -66,7 +66,7 @@ class syntax_plugin_usfmtag extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addExitPattern('</USFM>', 'plugin_usfmtag');
         $this->Lexer->addExitPattern('</usfm>', 'plugin_usfmtag');
     }
-	
+
 
 
 
@@ -102,7 +102,7 @@ class syntax_plugin_usfmtag extends DokuWiki_Syntax_Plugin {
     /*
     function handle($match, $state, $pos, &$handler){
         switch ($state) {
-          case DOKU_LEXER_ENTER : 
+          case DOKU_LEXER_ENTER :
             break;
           case DOKU_LEXER_MATCHED :
             break;
@@ -115,14 +115,14 @@ class syntax_plugin_usfmtag extends DokuWiki_Syntax_Plugin {
         }
         return array();
     }*/
-    
-    function handle($match, $state, $pos, &$handler) {
+
+    function handle($match, $state, $pos, Doku_Handler $handler) {
         switch ($state) {
             case DOKU_LEXER_ENTER :      return array($state, '');
             case DOKU_LEXER_UNMATCHED :  {
                 $tmp = new UsfmTagDecoder();
                 return array($state, $tmp->decode($match));
-            }                                                                  
+            }
             case DOKU_LEXER_EXIT :       return array($state, '');
         }
         return array($state,'');
@@ -147,7 +147,7 @@ class syntax_plugin_usfmtag extends DokuWiki_Syntax_Plugin {
     * @public
     * @see handle()
     */
-    function render($mode, &$renderer, $data) {
+    function render($mode, Doku_Renderer $renderer, $data) {
         if($mode == 'xhtml'){
             list($state,$match) = $data;
             switch ($state) {

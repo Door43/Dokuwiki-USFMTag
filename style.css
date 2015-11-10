@@ -1,3 +1,5 @@
+@CHARSET "UTF-8";
+
 /**
  * Copyright (c) 2011 Rusmin Soetjipto
  *
@@ -20,7 +22,7 @@
  * THE SOFTWARE.
  *
  * 7-25-14 Yvonne Lu removed left border from blockquote
- * 8-6-14 Yvonne Lu changed usfm-v and usfm-c to have the same line height of 
+ * 8-6-14 Yvonne Lu changed usfm-v and usfm-c to have the same line height of
  *        2em.  usfm-v used to have line-height of 1, usfm-c used to have line-
  *        height of 2.5em.  When that happens, sometimes verses on the second
  *        line runs into the chapter number.
@@ -34,7 +36,6 @@
 
  */
 
-@CHARSET "UTF-8";
 
 BIG.usfm { margin: 0;
            padding: 0;
@@ -77,26 +78,26 @@ H5.usfm, H6.usfm { margin: 0.25em 0 0.25em 0;
 BLOCKQUOTE.usfm { margin: 0 0.5em 0 1.5em;
                   padding: 0;
                   border-left: none;
-                  
+
                 }
 SUP.usfm,
-SPAN.usfm-f1, 
+SPAN.usfm-f1,
 SPAN.usfm-f2,
-SPAN.usfm-v { height: 0;                 
-              line-height: 2em; 
+SPAN.usfm-v { height: 0;
+              line-height: 2em;
               vertical-align: baseline;
               _vertical-align: bottom;
               position: relative;
               bottom: 1ex;
               font-size: smaller;
              }
-SPAN.usfm-c { float: left; 
+SPAN.usfm-c { float: left;
               margin: 0 0.25em 0 0;
               padding: 0;
               line-height: 2em;
               top: 0.5em;
 }
-SPAN.usfm-c-indent { float: left; 
+SPAN.usfm-c-indent { float: left;
                      margin: 0 0.25em 0 -1.25em;
                      padding: 0;
                      line-height: 2.5em;
@@ -114,9 +115,9 @@ span.popup_marker{
     text-align:left;
 }
 span.popup_marker:hover .popup{
-    
+
     position:absolute;
-    z-index:500; 
+    z-index:500;
     max-width:50%;
     display:inline;
     background-color: lightgray;
