@@ -425,14 +425,14 @@ class UsfmText {
 
         $this->printHtmlTextToBody(
             '<span class="popup_marker"><span class="usfm-f1">' .
-            '[<a name="' . $anchor_label . '*" href="' . $anchor_label . '">{$anchor_label}</a>]' .
+            '[<a name="' . $anchor_label . '*" href="' . $anchor_label . '">'.$anchor_label.'</a>]' .
             '</span><span class="popup">'
         );
 
         /** @noinspection HtmlUnknownAnchorTarget */
         $this->printHtmlTextToFooter(
             '<p class="usfm-footer"><span class="usfm-f2">' .
-            '[<a name="' . $anchor_label . '" href="#' . $anchor_label . '*">$anchor_label</a>]' .
+            '[<a name="' . $anchor_label . '" href="#' . $anchor_label . '*">'.$anchor_label.'</a>]' .
             '</span>'
         );
     }
